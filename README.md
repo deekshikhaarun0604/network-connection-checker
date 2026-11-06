@@ -400,3 +400,5 @@ Tests all valid domains, public IPs, validation errors, private IP rejections, a
 node backend/test-suite.js
 ```
 *Output: `TEST SUMMARY: 17 Passed, 0 Failed`*
+#   n e t w o r k - c o n n e c t i o n - c h e c k e r  
+ 
