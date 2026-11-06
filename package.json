@@ -1,0 +1,16 @@
+{
+  "name": "network-connection-checker",
+  "version": "1.0.0",
+  "description": "Web-Based Network Connection Checker (MERN Stack with Automata FSM)",
+  "scripts": {
+    "start:backend": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "node backend/test-suite.js",
+    "test:fsm": "node frontend/src/fsm/connectionFSM.test.js"
+  },
+  "keywords": ["mern", "network-checker", "fsm", "automata-theory"],
+  "author": "",
+  "license": "ISC"
+}
