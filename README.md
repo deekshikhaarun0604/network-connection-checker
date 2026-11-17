@@ -19,16 +19,17 @@ A full-stack **MERN** web application that allows users to verify whether a serv
    - [Prerequisites](#prerequisites)
    - [1. Backend Setup](#1-backend-setup)
    - [2. Frontend Setup](#2-frontend-setup)
-8. [Running the Application](#8-running-the-application)
+8. [Running the Application Locally](#8-running-the-application-locally)
 9. [MongoDB Configuration](#9-mongodb-configuration)
-10. [API Documentation](#10-api-documentation)
+10. [Deploying on Render as a Single Website](#10-deploying-on-render-as-a-single-website)
+11. [API Documentation](#11-api-documentation)
     - [POST /api/check](#post-apicheck)
     - [GET /api/history](#get-apihistory)
     - [DELETE /api/history](#delete-apihistory)
-11. [Sample Input & Output](#11-sample-input--output)
-12. [Validation & Security Restrictions](#12-validation--security-restrictions)
-13. [Screenshots & UI Walkthrough](#13-screenshots--ui-walkthrough)
-14. [Testing Suite](#14-testing-suite)
+12. [Sample Input & Output](#12-sample-input--output)
+13. [Validation & Security Restrictions](#13-validation--security-restrictions)
+14. [Screenshots & UI Walkthrough](#14-screenshots--ui-walkthrough)
+15. [Testing Suite](#15-testing-suite)
 
 ---
 
@@ -69,6 +70,7 @@ The **Network Connection Checker** provides a web interface where a user can inp
 - **Clear History**: Delete previous history with a user confirmation prompt.
 - **Quick Test Presets**: One-click preset buttons for rapid demonstration (`google.com`, `github.com`, `1.1.1.1`, `localhost`, `192.168.1.1`).
 - **Security-First Architecture**: Strictly rejects loopback (`127.0.0.1`), `localhost`, private subnets (RFC 1918), link-local (`169.254.0.0/16`), multicast, and reserved addresses before socket creation.
+- **Unified Single-Website Deployment**: The Express server serves both the React UI and API endpoints simultaneously.
 
 ---
 
@@ -142,7 +144,7 @@ NetworkConnectionChecker/
 │   ├── utils/
 │   │   └── networkChecker.js   # DNS resolution, IPv4 validation, TCP check
 │   ├── test-suite.js           # Automated end-to-end backend tests
-│   ├── server.js               # Express server entry point
+│   ├── server.js               # Express server entry point (serves API & static UI)
 │   ├── .env                    # Local environment config
 │   ├── .env.example            # Sample configuration template
 │   └── package.json            # Backend dependencies
@@ -161,8 +163,9 @@ NetworkConnectionChecker/
 ├── FLAT/
 │   ├── state-diagram.md        # Mermaid state diagram and theoretical details
 │   └── transition-table.md     # Mathematical transition table and matrix
+├── render.yaml                 # Render Blueprint for 1-click single-website deploy
 ├── .gitignore                  # Git ignore rules for node_modules and .env
-├── package.json                # Root workspace scripts
+├── package.json                # Root workspace scripts (build & start)
 └── README.md                   # Complete documentation
 ```
 
@@ -178,59 +181,33 @@ NetworkConnectionChecker/
 
 ### 1. Backend Setup
 
-1. Open your terminal and navigate to the `backend` folder:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Verify or edit `.env` (a `.env.example` is also provided):
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://127.0.0.1:27017/network_checker
-   ```
+```bash
+cd backend
+npm install
+```
 
 ### 2. Frontend Setup
 
-1. Open a new terminal and navigate to the `frontend` folder:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+cd frontend
+npm install
+```
 
 ---
 
-## 8. Running the Application
+## 8. Running the Application Locally
 
-### Option A: Run Backend and Frontend in Separate Terminals
-
-**Terminal 1 (Backend Server):**
+### Option A: Unified Single-Port Mode (Same as Render Production)
 ```bash
-cd backend
-npm run dev
+# From root directory:
+npm run build
+npm start
 ```
-*Output: `✓ Network Connection Checker backend running on http://localhost:5000`*
+Open **`http://localhost:5000`** in your browser. Both the React UI and Express API are served on port 5000!
 
-**Terminal 2 (Frontend Client):**
-```bash
-cd frontend
-npm run dev
-```
-*Output: `➜ Local: http://localhost:3000/`*
-
-Now open your web browser and visit: **`http://localhost:3000`**
-
-### Option B: Using Root Scripts
-
-From the root project directory:
-- Start backend: `npm run dev:backend`
-- Start frontend: `npm run dev:frontend`
-- Build frontend: `npm run build:frontend`
+### Option B: Separate Development Mode
+- **Terminal 1**: `npm run dev:backend` (Backend on `http://localhost:5000`)
+- **Terminal 2**: `npm run dev:frontend` (Vite dev server on `http://localhost:3000`)
 
 ---
 
@@ -251,7 +228,41 @@ Each record conforms to the following schema:
 
 ---
 
-## 10. API Documentation
+## 10. Deploying on Render as a Single Website
+
+The project is structured so Render runs both the backend and serves the frontend from a single Web Service on Render's **Free Plan**.
+
+### Step 1: Sign in to Render
+1. Go to [https://render.com](https://render.com) and log in with your GitHub account (`deekshikhaarun0604`).
+
+### Step 2: Create a New Web Service
+1. Click **"New +"** in the top right, then select **"Web Service"**.
+2. Select your repository: **`deekshikhaarun0604/network-connection-checker`**.
+3. Fill in the service configuration:
+   - **Name**: `network-connection-checker`
+   - **Region**: Choose the closest region (e.g., *Oregon (US West)* or *Frankfurt*)
+   - **Branch**: `main`
+   - **Root Directory**: *(leave blank to use root)*
+   - **Runtime**: `Node`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+   - **Instance Type**: **Free** ($0/month)
+
+### Step 3: Add Environment Variables
+Under the **Environment Variables** section:
+- **`NODE_ENV`**: `production`
+- **`MONGO_URI`**: Your MongoDB connection string (e.g., from MongoDB Atlas: `mongodb+srv://<username>:<password>@cluster0.mongodb.net/networkChecker?retryWrites=true&w=majority`)
+
+### Step 4: Deploy
+Click **"Create Web Service"**.  
+Render will run `npm run build` (which installs all packages and compiles the React app), then start the server with `npm start`.
+
+Once deployed, Render gives you a public URL such as:  
+**`https://network-connection-checker.onrender.com`**
+
+---
+
+## 11. API Documentation
 
 ### POST `/api/check`
 Initiates a reachability check for a domain or public IPv4 address on TCP port 443.
@@ -296,40 +307,18 @@ Initiates a reachability check for a domain or public IPv4 address on TCP port 4
 ### GET `/api/history`
 Retrieves past connection checks from MongoDB, sorted newest first.
 
-- **Response (200 OK)**:
-  ```json
-  [
-    {
-      "_id": "...",
-      "hostname": "google.com",
-      "status": "Success",
-      "responseTime": 42,
-      "message": "Successfully reached google.com (142.250.190.46) on port 443.",
-      "checkedAt": "2026-11-06T15:30:00.000Z"
-    }
-  ]
-  ```
-
 ### DELETE `/api/history`
 Clears all saved connection check history from MongoDB.
 
-- **Response (200 OK)**:
-  ```json
-  {
-    "message": "Connection history cleared successfully.",
-    "deletedCount": 12
-  }
-  ```
-
 ---
 
-## 11. Sample Input & Output
+## 12. Sample Input & Output
 
 | Test Input | Input Category | Expected FSM State | Result Status | Result Details |
 |---|---|---|---|---|
-| `google.com` | Public Domain | `Success` | **Success** (Green) | ~40-80 ms response time |
-| `github.com` | Public Domain | `Success` | **Success** (Green) | ~50-90 ms response time |
-| `1.1.1.1` | Public IPv4 (Cloudflare) | `Success` | **Success** (Green) | ~30-60 ms response time |
+| `google.com` | Public Domain | `Success` | **Success** (Green) | ~30-60 ms response time |
+| `github.com` | Public Domain | `Success` | **Success** (Green) | ~40-70 ms response time |
+| `1.1.1.1` | Public IPv4 (Cloudflare) | `Success` | **Success** (Green) | ~25-50 ms response time |
 | `localhost` | Loopback Hostname | `Ready` (Validation Error) | **Blocked** | "Access denied: Localhost is restricted." |
 | `127.0.0.1` | Loopback IP | `Ready` (Validation Error) | **Blocked** | "Access denied: Loopback address is restricted." |
 | `192.168.1.1` | Private IPv4 (RFC 1918) | `Ready` (Validation Error) | **Blocked** | "Access denied: Private network address is restricted." |
@@ -338,9 +327,7 @@ Clears all saved connection check history from MongoDB.
 
 ---
 
-## 12. Validation & Security Restrictions
-
-To prevent server abuse and adhere to safe networking practices, the backend strictly implements:
+## 13. Validation & Security Restrictions
 
 1. **Port Restriction**: Only connects to **port 443** (HTTPS standard TCP port).
 2. **No Port Scanning / IP Range Scanning**: Only one target hostname or IPv4 address is inspected per request.
@@ -355,7 +342,7 @@ To prevent server abuse and adhere to safe networking practices, the backend str
 
 ---
 
-## 13. Screenshots & UI Walkthrough
+## 14. Screenshots & UI Walkthrough
 
 ```
 +-----------------------------------------------------------------------+
@@ -370,35 +357,31 @@ To prevent server abuse and adhere to safe networking practices, the backend str
 +-----------------------------------------------------------------------+
 | [✓ Success] Target: google.com                                        |
 | Status: Success                                                       |
-| Response Time: 42 ms                                                  |
+| Response Time: 30 ms                                                  |
 | Details: Successfully reached google.com (142.250.190.46) on port 443 |
 +-----------------------------------------------------------------------+
 | Connection History                         Filter: [ All v ] [Clear]  |
 | +---------+------------+---------------+----------------------------+ |
 | | Status  | Hostname   | Response Time | Checked At                 | |
 | +---------+------------+---------------+----------------------------+ |
-| | SUCCESS | google.com | 42 ms         | 06/11/2026, 9:05 PM        | |
+| | SUCCESS | google.com | 30 ms         | 06/11/2026, 9:05 PM        | |
 | +---------+------------+---------------+----------------------------+ |
 ```
 
 ---
 
-## 14. Testing Suite
+## 15. Testing Suite
 
 The project includes two built-in automated test suites:
 
 ### 1. FSM Automata Unit Tests
-Verifies all 8 state transitions from Formal Languages and Automata Theory:
 ```bash
 node frontend/src/fsm/connectionFSM.test.js
 ```
 *Output: `FSM TEST SUMMARY: 9 Passed, 0 Failed`*
 
 ### 2. End-to-End Backend & Network Tests
-Tests all valid domains, public IPs, validation errors, private IP rejections, and history database operations:
 ```bash
 node backend/test-suite.js
 ```
 *Output: `TEST SUMMARY: 17 Passed, 0 Failed`*
-#   n e t w o r k - c o n n e c t i o n - c h e c k e r  
- 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { STATES, EVENTS, transition } from './fsm/connectionFSM';
 import './App.css';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 function App() {
   // Input and FSM state management
   const [fsmState, setFsmState] = useState(STATES.READY);
@@ -26,7 +28,7 @@ function App() {
   const fetchHistory = async () => {
     setIsHistoryLoading(true);
     try {
-      const response = await fetch('/api/history');
+      const response = await fetch(`${API_BASE}/api/history`);
       if (response.ok) {
         const data = await response.json();
         setHistory(data);
@@ -103,7 +105,7 @@ function App() {
     setCheckResult(null);
 
     try {
-      const response = await fetch('/api/check', {
+      const response = await fetch(`${API_BASE}/api/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hostname: valResult.sanitized }),
@@ -162,7 +164,7 @@ function App() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch('/api/history', { method: 'DELETE' });
+      const response = await fetch(`${API_BASE}/api/history`, { method: 'DELETE' });
       if (response.ok) {
         setHistory([]);
         setHistoryMessage('History cleared successfully.');
